@@ -27,3 +27,4 @@ vault_tls_version: tls12
 vault_service: hashicorp_vault.service
 vault_storage: raft
 vault_ui_enabled: true
+vault_auto_restart: true

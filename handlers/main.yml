@@ -8,3 +8,9 @@
   ansible.builtin.systemd:
     name: "{{ vault_service }}"
     state: reloaded
+
+- name: restart_hashicorp_vault
+  ansible.builtin.systemd:
+    name: "{{ vault_service }}"
+    state: restarted
+  when: vault_auto_restart

@@ -28,6 +28,8 @@
        dest: "{{ vault_bin_path }}"
        remote_src: true
        keep_newer: false
+     notify:
+        - restart_hashicorp_vault
 
    - name: remove unzip
      ansible.builtin.apt:
