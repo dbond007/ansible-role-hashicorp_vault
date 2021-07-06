@@ -23,7 +23,6 @@ listener "{{ vault_server_proto }}" {
     tls_disable = "true"
 {% endif %}
 }
-
 disable_mlock = true
 # Advertise address
 {% if vault_tls_disabled %}

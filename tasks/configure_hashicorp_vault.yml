@@ -3,96 +3,84 @@
 
 - name: Ensure swap is disabled now
   command: swapoff -a
-  become: true
   changed_when: false
 
 - name: Ensure swap is disabled after reboot
-  replace:
+  ansible.builtin.replace:
     path: /etc/fstab
     regexp: '^(\s*)([^#\n]+\s+)(\w+\s+)swap(\s+.*)$'
     replace: '#\1\2\3swap\4'
     backup: yes
-  become: true
 
 - name: Ensure SSH enabled
-  firewalld:
+  ansible.posix.firewalld:
     port: 22/tcp
     permanent: yes
     immediate: yes
     state: enabled
-  become: true
 
 - name: Ensure client firewall openings for vault
-  firewalld:
+  ansible.posix.firewalld:
     port: "{{ vault_client_port }}/{{ vault_client_proto }}"
     permanent: yes
     immediate: yes
     state: enabled
-  become: true
 
 - name: Ensure server firewall openings for vault
-  firewalld:
+  ansible.posix.firewalld:
     port: "{{ vault_server_port }}/{{ vault_server_proto }}"
     permanent: yes
     immediate: yes
     state: enabled
-  become: true
 
 - name: Ensure core dumps are disabled
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/systemd/coredump.conf
     line: Storage=none
     create: yes
-  become: true
 
 - name: Ensure bash history is disabled
-  lineinfile:
+  ansible.builtin.lineinfile:
     path: /etc/profile.d/disable.history.sh
     line: set +o history
     create: yes
-  become: true
 
   # configure hashicorp vault, creating user and start service
 
 - name: Ensure vault user home directory is present
-  file:
+  ansible.builtin.file:
     path: "{{ vault_user_home }}"
     state: directory
-  become: true
 
 - name: Ensure vault user is present
-  user:
+  ansible.builtin.user:
     name: "{{ vault_user }}"
     shell: /bin/false
     home: "{{ vault_user_home }}"
     system: yes
-  become: true
 
 - name: Ensure vault group is present
-  group:
+  ansible.builtin.group:
     name: "{{ vault_group }}"
-  become: true
 
 - name: Ensure vault data directory is present
-  file:
+  ansible.builtin.file:
     path: "{{ vault_raft_path }}"
     state: directory
     owner: "{{ vault_user }}"
     group: "{{ vault_group }}"
     mode: 0744
-  become: true
 
 - name: Ensure unit file is present and correct
-  template:
+  ansible.builtin.template:
     src: vault_systemd.j2
     dest: /etc/systemd/system/{{ vault_service }}
     mode: 644
   notify:
     - reload_systemctl
-  become: true
 
 - name: Ensure hashicorp vault config file is present and correct
-  template:
+  ansible.builtin.template:
     src: vault_config.j2
     dest: "{{ vault_config }}"
     owner: "{{ vault_user }}"
@@ -101,8 +89,7 @@
     - reload_hashicorp_vault
 
 - name: Start vault
-  service:
+  ansible.builtin.service:
     name: "{{ vault_service }}"
     state: started
     enabled: yes
-  become: true

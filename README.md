@@ -2,7 +2,7 @@
 
 This role will install Hashicorp Vault via download.
 
-It will download the version specified in var: vault_version, this is currently set to 1.7.2. Changing this value will replace the currently installed version with the one specified. So it is possible to upgrade and downgrade. The check for the version is currently very primitive, it will run a vault --version and will substring check it for the version number, so currently it is possible that a different version will be detected as the same, for example 1.7.2 will match 11.7.2 or 1.7.2.0.
+It will download the version specified in var: vault_version, this is currently set to 1.7.3. Changing this value will replace the currently installed version with the one specified. So it is possible to upgrade and downgrade. The check for the version is currently very primitive, it will run a vault --version and will substring check it for the version number, so currently it is possible that a different version will be detected as the same, for example 1.7.3 will match 11.7.3 or 1.7.3.1.
 
 The backend currently supported is raft.
 
@@ -20,3 +20,6 @@ vault_tls_version defines the minumum TLS version, valid values are tls10, tls11
 
 
 The value UI is enabled by default, but can be turned off via vault_ui_enabled.
+
+Requires collection:
+- ansible.posix.firewalld

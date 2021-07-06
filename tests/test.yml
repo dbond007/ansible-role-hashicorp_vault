@@ -1,7 +1,9 @@
 ---
-- hosts: test
+- hosts: all
   remote_user: root
   become: true
 
   roles:
     - ansible-role-hashicorp_vault
+  collections:
+    - ansible.posix.firewalld

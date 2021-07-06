@@ -16,20 +16,20 @@
   when: vault_installed_version is failed or vault_installed_version.stdout.find( vault_version ) == -1
   block:
    - name: Install unzip if it is currently not in an installed state
-     apt:
+     ansible.builtin.apt:
        name: unzip
        state: present
        force_apt_get: yes
        update_cache: yes
 
    - name: Download and extract {{ vault_app }} archive to {{ vault_bin_path }}
-     unarchive:
+     ansible.builtin.unarchive:
        src: "{{ vault_dl_url }}/{{ vault_app }}/{{ vault_version }}/{{ vault_app }}_{{ vault_version }}_{{ vault_osarch }}.zip"
        dest: "{{ vault_bin_path }}"
        remote_src: true
        keep_newer: false
 
    - name: remove unzip
-     apt:
+     ansible.builtin.apt:
        name: unzip
        state: absent

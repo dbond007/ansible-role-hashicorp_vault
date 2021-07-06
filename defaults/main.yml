@@ -2,7 +2,7 @@
 # defaults file for ansible-role-hashicorp_vault
 
 vault_app: vault
-vault_version: 1.7.2
+vault_version: 1.7.3
 vault_osarch: linux_amd64
 vault_dl_url: https://releases.hashicorp.com
 vault_dl_loc: /tmp
