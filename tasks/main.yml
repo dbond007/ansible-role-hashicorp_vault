@@ -1,0 +1,10 @@
+---
+# tasks file for ansible-role-hashicorp_vault
+
+- name: Ensure Hashicorp Vault is installed
+  include: install_hashicorp_vault_download.yml
+
+- name: Ensure the server is configured correctly
+  include: configure_hashicorp_vault.yml
+
+

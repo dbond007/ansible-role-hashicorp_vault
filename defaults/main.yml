@@ -1,0 +1,29 @@
+---
+# defaults file for ansible-role-hashicorp_vault
+
+vault_app: vault
+vault_version: 1.7.2
+vault_osarch: linux_amd64
+vault_dl_url: https://releases.hashicorp.com
+vault_dl_loc: /tmp
+vault_bin_path: /usr/local/bin
+vault_config: "{{ vault_user_home }}/vault.hcl"
+vault_raft_path: /opt/vault.d
+vault_user_home: /etc/vault.d
+vault_user: vault
+vault_group: vault
+hashicorp_repo: https://apt.releases.hashicorp.com
+vault_client_port: 8200
+vault_client_proto: tcp
+vault_client_ip: "{{ ansible_eth0.ipv4.address }}"
+vault_server_port: 8201
+vault_server_proto: tcp
+vault_server_ip: "{{ ansible_eth0.ipv4.address }}"
+vault_id: aaaa
+vault_tls_disabled: true
+vault_tls_cert: test
+vault_tls_key: test
+vault_tls_version: tls12
+vault_service: hashicorp_vault.service
+vault_storage: raft
+vault_ui_enabled: true

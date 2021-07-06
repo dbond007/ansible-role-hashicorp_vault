@@ -1,0 +1,17 @@
+---
+# Install Hashicorp Vault via repo
+
+- name: add hashicorp signing key
+  apt_key:
+    url: "{{ hashicorp_repo }}/gpg"
+    state: present
+
+- name: setup hashicorp repo on Ubuntu
+  apt_repository:
+    repo: "deb [arch=amd64] {{ hashicorp_repo }} {{ ansible_facts['distribution_release'] }} main"
+    state: present
+
+- name: installing vault
+  package:
+    name: "{{ vault_app }}={{ vault_version }}"
+    state: present

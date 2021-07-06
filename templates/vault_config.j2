@@ -1,0 +1,37 @@
+storage "raft" {
+    path    = "{{ vault_raft_path }}"
+    node_id = "{{ vault_id }}"
+}
+listener "{{ vault_server_proto }}" {
+    address = "{{ vault_client_ip }}:{{ vault_client_port }}"
+    cluster_address = "{{ vault_server_ip }}:{{ vault_server_port }}"
+{% if not vault_tls_disabled %}
+    tls_cert_file = "{{ vault_tls_cert }}"
+    tls_key_file = "{{ vault_tls_key }}"
+    tls_min_version = "{{ vault_tls_version }}"
+{% else %}
+    tls_disable = "true"
+{% endif %}
+}
+listener "{{ vault_server_proto }}" {
+    address = "127.0.0.1:{{ vault_client_port }}"
+{% if not vault_tls_disabled %}
+    tls_cert_file = "{{ vault_tls_cert }}"
+    tls_key_file = "{{ vault_tls_key }}"
+    tls_min_version = "{{ vault_tls_version }}"
+{% else %}
+    tls_disable = "true"
+{% endif %}
+}
+
+disable_mlock = true
+# Advertise address
+{% if vault_tls_disabled %}
+api_addr  = "http://{{ vault_server_ip }}:{{ vault_client_port }}"
+cluster_addr = "http://{{ vault_server_ip }}:{{ vault_server_port }}"
+{% else %}
+api_addr = "https://{{ vault_server_ip }}:{{ vault_client_port }}"
+cluster_addr = "https://{{ vault_server_ip }}:{{ vault_server_port }}"
+{% endif %}
+
+ui = "{{ vault_ui_enabled }}"

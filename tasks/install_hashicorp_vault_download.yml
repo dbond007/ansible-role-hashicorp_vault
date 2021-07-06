@@ -1,0 +1,35 @@
+---
+
+# install hashicorp vault via zip download
+
+- name: Get the version of the installed hashicorp vault
+  command: "vault --version"
+  register: vault_installed_version
+  changed_when: false
+  ignore_errors: true
+
+# Could be problems with this when block, as its checking the version is in the string, so 1.7.2 would match 11.7.2
+# Also the blocks success is dependent upon it not evaluating the version from stdout when there is no vault installed, as it will error
+# This is why the failed check is first
+# Should also validate the download
+- name: Update or install only when needed based upon vault version
+  when: vault_installed_version is failed or vault_installed_version.stdout.find( vault_version ) == -1
+  block:
+   - name: Install unzip if it is currently not in an installed state
+     apt:
+       name: unzip
+       state: present
+       force_apt_get: yes
+       update_cache: yes
+
+   - name: Download and extract {{ vault_app }} archive to {{ vault_bin_path }}
+     unarchive:
+       src: "{{ vault_dl_url }}/{{ vault_app }}/{{ vault_version }}/{{ vault_app }}_{{ vault_version }}_{{ vault_osarch }}.zip"
+       dest: "{{ vault_bin_path }}"
+       remote_src: true
+       keep_newer: false
+
+   - name: remove unzip
+     apt:
+       name: unzip
+       state: absent

@@ -1,0 +1,7 @@
+---
+
+- name: reload_systemctl
+  command: systemctl daemon-reload
+
+- name: reload_hashicorp_vault
+  command: systemctl reload {{ vault_service }}

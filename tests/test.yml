@@ -1,0 +1,7 @@
+---
+- hosts: test
+  remote_user: root
+  become: true
+
+  roles:
+    - ansible-role-hashicorp_vault
