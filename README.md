@@ -2,6 +2,8 @@
 
 This role will install Hashicorp Vault via download, it will configure it using raft as a backend, allow enabling tls and initialising with plain text keys or pgp.
 
+It will download the version specified and install it, if a version is currently installed it will check if it is different to the one requested, if so, will upgrade / downgrade it.
+If vault_auto_restart: true is set, it will automatically restart the vault server (requiring and unseal)
 
 The backend currently supported is raft.
 
@@ -14,6 +16,7 @@ TLS is default off as it will need the certificates to complete deployment, this
 - vault_tls_version: tls12
 
 If vault_tls_disabled is set to false, the cert and key need to be filled in and copied to the server.
+If the TLS settings are changed, the vault config will be automatically reloaded.
 
 vault_tls_version defines the minumum TLS version, valid values are tls10, tls11, tls12, tls13
 
