@@ -1,8 +1,7 @@
 # ansible-role-hashicorp_vault
 
-This role will install Hashicorp Vault via download.
+This role will install Hashicorp Vault via download, it will configure it using raft as a backend, allow enabling tls and initialising with plain text keys or pgp.
 
-It will download the version specified in var: vault_version, this is currently set to 1.7.3. Changing this value will replace the currently installed version with the one specified. So it is possible to upgrade and downgrade. The check for the version is currently very primitive, it will run a vault --version and will substring check it for the version number, so currently it is possible that a different version will be detected as the same, for example 1.7.3 will match 11.7.3 or 1.7.3.1.
 
 The backend currently supported is raft.
 
@@ -18,8 +17,16 @@ If vault_tls_disabled is set to false, the cert and key need to be filled in and
 
 vault_tls_version defines the minumum TLS version, valid values are tls10, tls11, tls12, tls13
 
-
 The value UI is enabled by default, but can be turned off via vault_ui_enabled.
+
+Vault will be automatically initialised if the vault is uninitialised.
+The unseal and root token will be returned in plain text in
+
+- vault_unseal_keys
+- vault_unseal_keys_b64
+- vault_root_token
+
+Unless vault_pgp_init: true is set and vault_pgp_keys and vault_pgp_root_key are populated with pgp publics keys. Then they will be returned encrypted.
 
 Requires collection:
 - ansible.posix.firewalld
