@@ -1,0 +1,51 @@
+---
+
+- name: Get initialisation status via URI
+  ansible.builtin.uri:
+    url: "{{ vault_address }}/v1/sys/init"
+  register: vault_status
+
+- name: set vault initialiation state
+  set_fact:
+    vault_initialised: "{{ vault_status['json']['initialized'] }}"
+
+- name: Check if vault is initialised
+  debug:
+    msg: "Has the vault been initialised: {{ vault_initialised }}"
+
+- name: Ensure init is done
+  when: not vault_initialised
+  block:
+    - name: Initialise vault via json post
+      ansible.builtin.uri:
+        url: "{{ vault_address }}/v1/sys/init"
+        method: POST
+        body_format: json
+        body: |
+          {
+            "secret_shares": {{ vault_key_shares }},
+            "secret_threshold": {{ vault_key_threshold }},
+          {% if vault_pgp_init %}
+            "pgp_keys": {{ vault_pgp_keys | to_json }},
+            "root_token_pgp_key": {{ vault_pgp_root_key | to_json }}
+          {% endif %}
+          }
+      register: vault_init_results
+
+    - name: Set unseal and root keys
+      set_fact:
+        vault_unseal_keys: "{{ vault_init_results['json']['keys'] }}"
+        vault_unseal_keys_b64: "{{ vault_init_results['json']['keys_base64'] }}"
+        vault_root_token: "{{ vault_init_results['json']['root_token'] }}"
+
+    - name: Display vault unseal keys in hex format
+      debug:
+        msg: "{{ vault_unseal_keys }}"
+
+    - name: Display vault unseal keys in base 64
+      debug:
+        msg: "{{ vault_unseal_keys_b64 }}"
+
+    - name: Display root token
+      debug:
+        msg: "{{ vault_root_token }}"

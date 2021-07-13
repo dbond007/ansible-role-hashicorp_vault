@@ -2,18 +2,25 @@
 
 # install hashicorp vault via zip download
 
-- name: Get the version of the installed hashicorp vault
-  command: "vault --version"
-  register: vault_installed_version
-  changed_when: false
+- name: Get version via URI
+  ansible.builtin.uri:
+    url: "{{ vault_address }}/v1//sys/health"
+    status_code: "{{ vault_valid_return_codes }}"
+  register: vault_health
   ignore_errors: true
 
-# Could be problems with this when block, as its checking the version is in the string, so 1.7.2 would match 11.7.2
-# Also the blocks success is dependent upon it not evaluating the version from stdout when there is no vault installed, as it will error
-# This is why the failed check is first
+- name: Set vault installed state
+  set_fact:
+    vault_installed_version: "{{ vault_health['json']['version'] }}"
+  when: vault_health is not failed
+
+- debug:
+    msg: "Version found: {{ vault_installed_version }}"
+  when: vault_health is not failed
+
 # Should also validate the download
 - name: Update or install only when needed based upon vault version
-  when: vault_installed_version is failed or vault_installed_version.stdout.find( vault_version ) == -1
+  when: vault_health is failed or vault_installed_version != vault_version
   block:
    - name: Install unzip if it is currently not in an installed state
      ansible.builtin.apt:

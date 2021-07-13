@@ -1,10 +1,21 @@
 ---
 # tasks file for ansible-role-hashicorp_vault
 
+###### Same for all, so should split out #########
+- set_fact:
+    vault_address: "http://{{ vault_uri_addr }}:{{ vault_client_port }}"
+  when: vault_tls_disabled
+
+- set_fact:
+    vault_address: "https://{{ vault_uri_addr }}:{{ vault_client_port }}"
+  when: not vault_tls_disabled
+
 - name: Ensure Hashicorp Vault is installed
   include: install_hashicorp_vault_download.yml
 
 - name: Ensure the server is configured correctly
   include: configure_hashicorp_vault.yml
 
+- name: Initialise vault
+  include: init_hashicorp_vault.yml
 

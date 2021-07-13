@@ -1,0 +1,15 @@
+---
+
+- name: Ensure vault database is removed
+  ansible.builtin.file:
+    path: "{{ vault_raft_path }}/vault.db"
+    state: absent
+  notify: restart_hashicorp_vault
+
+- name: Ensure vault raft database is removed
+  ansible.builtin.file:
+    path: "{{ vault_raft_path }}/raft/raft.db"
+    state: absent
+  notify: restart_hashicorp_vault
+
+- meta: flush_handlers
