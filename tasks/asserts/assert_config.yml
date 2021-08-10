@@ -1,0 +1,20 @@
+---
+
+- name: Include base asserts
+  include: asserts/assert_base.yml
+
+- name: Include TLS asserts if TLS enabled
+  include: asserts/assert_tls.yml
+  when: not vault_tls_disabled
+
+- name: Include storage asserts for selected storage, {{ vault_storage }}
+  include: "{{ item }}"
+  with_first_found:
+    - files:
+      - "assert_{{ vault_storage }}.yml"
+    - paths:
+      - "{{ role_path }}/tasks/asserts"
+      skip: true
+
+- name: Include init asserts
+  include: asserts/assert_init.yml

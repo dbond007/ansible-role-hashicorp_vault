@@ -1,0 +1,45 @@
+# Start storage stanza
+storage "raft" {
+  path    = "{{ vault_raft_path }}"
+  node_id = "{{ vault_raft_id }}"
+{% if vault_raft_performance_multiplier is defined and vault_raft_performance_multiplier %}
+  performance_multiplier = "{{ vault_raft_performance_multiplier | int }}"
+{% endif %}
+{% if vault_raft_trailing_logs is defined and vault_raft_trailing_logs %}
+  trailing_logs = "{{ vault_raft_trailing_logs | int }}"
+{% endif %}
+{% if vault_raft_snapshot_threshold is defined and vault_raft_snapshot_threshold %}
+  snapshot_threshold = "{{ vault_raft_snapshot_threshold | int }}"
+{% endif %}
+{% if vault_raft_max_entry_size is defined and vault_raft_max_entry_size %}
+  max_entry_size = "{{ vault_raft_max_entry_size | int }}"
+{% endif %}
+{% if vault_raft_autopilot_reconcile_interval is defined and vault_raft_autopilot_reconcile_interval %}
+  autopilot_reconcile_interval = "{{ vault_raft_autopilot_reconcile_interval }}"
+{% endif %}
+{% if not vault_raft_auto_join_enabled | bool or vault_raft_auto_join_enabled is not defined %}
+{% for server in groups[vault_server_role_group] | difference([inventory_hostname]) %}
+{% if hostvars[server] is defined %}
+  retry_join {
+{% if vault_raft_auto_join is defined and vault_raft_auto_join %}
+    auto_join = "{{ vault_raft_auto_join }}"
+  {% if vault_raft_auto_join_scheme is defined and vault_raft_auto_join_scheme %}
+    auto_join_scheme = "{{ vault_raft_auto_join_scheme }}"
+  {% endif %}
+  {% if vault_raft_auto_join_port is defined and vault_raft_auto_join_port %}
+    auto_join_port = "{{ vault_raft_auto_join_port }}"
+  {% endif %}
+{% else %}
+    leader_api_addr = "{{ vault_tls_disabled | ternary('http', 'https') }}://{{ server }}:{{ vault_client_port }}" 
+{% endif %}
+  {% if not vault_tls_disabled | bool %}
+    leader_ca_cert_file = "{{ vault_storage_tls_ca_file }}"
+    leader_client_cert_file = "{{ vault_storage_tls_cert_file }}"
+    leader_client_key_file = "{{ vault_storage_tls_key_file }}"
+  {% endif %}
+  }
+  {% endif %}
+{% endfor %}
+{% endif %}
+}
+#End storage stanza

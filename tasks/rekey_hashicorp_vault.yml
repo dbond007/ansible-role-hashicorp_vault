@@ -1,0 +1,92 @@
+---
+
+- name: Get health for rekey via URI
+  ansible.builtin.uri:
+    url: "{{ vault_address }}/v1//sys/health"
+    status_code: "{{ vault_valid_return_codes }}"
+  register: vault_health
+  ignore_errors: false
+
+- name: Set vault initialiation and seal state state
+  set_fact:
+    vault_initialised: "{{ vault_health['json']['initialized'] | bool }}"
+    vault_sealed: "{{ vault_health['json']['sealed'] | bool }}"
+
+- name: "Current vault status"
+  debug:
+    msg: "Vault initialised: {{ vault_initialised }}, vault sealed: {{ vault_sealed }}"
+
+- name: Ensure rekey is done
+  when:
+    - vault_initialised
+    - not vault_sealed
+  block:
+    - name: Pause for 5 seconds test
+      pause:
+        seconds: 5
+
+    - name: Rekey vault via json post
+      ansible.builtin.uri:
+        url: "{{ vault_address }}/v1/sys/rekey/init"
+        method: POST
+        body_format: json
+        body: |
+          {
+            "secret_shares": {{ vault_key_shares }},
+            "secret_threshold": {{ vault_key_threshold }},
+          {% if vault_pgp_init %}
+            "pgp_keys": {{ vault_pgp_keys | to_json }},
+            "root_token_pgp_key": {{ vault_pgp_root_key | to_json }}
+          {% endif %}
+          }
+      register: vault_rekey_init_results
+
+    - name: Get the rekey nonce needed for rekeying
+      set_fact:
+        vault_rekey_nonce: "{{ vault_rekey_init_results['json']['nonce'] }}"
+
+    - name: "Rekey nonce"
+      debug:
+        msg: "Rekey nonce: {{ vault_rekey_nonce }}"
+
+    - name: Pause for 5 seconds test
+      pause:
+        seconds: 5
+
+    - name: Provide keys for rekeying
+      ansible.builtin.uri:
+        url: "{{ vault_address }}/v1/sys/rekey/update"
+        method: POST
+        body_format: json
+        body: |
+          {
+            "key": "{{ item }}",
+            "nonce": "{{ vault_rekey_nonce }}"
+          }
+        status_code: "{{ vault_valid_return_codes }}"
+      loop: "{{ vault_unseal_keys_b64 }}"
+      register: vault_rekey_results
+
+    - debug:
+        msg: "vault_rekey_resultss : {{ item['json']['keys'] }}"
+      with_items: "{{ vault_rekey_results['results'] }}"
+      when: item['json']['complete'] is defined and item['json']['complete'] | bool
+
+    - name: Set unseal and root keys
+      set_fact:
+        vault_unseal_keys: "{{ item['json']['keys'] }}"
+        vault_unseal_keys_b64: "{{ item['json']['keys_base64'] }}"
+      with_items: "{{ vault_rekey_results['results'] }}"
+      when: item['json']['complete'] is defined and item['json']['complete'] | bool
+
+    - name: Display vault unseal keys in hex format
+      debug:
+        msg: "{{ vault_unseal_keys }}"
+
+    - name: Display vault unseal keys in base 64
+      debug:
+        msg: "{{ vault_unseal_keys_b64 }}"
+
+    - name: Display root token
+      debug:
+        msg: "{{ vault_root_token }}"

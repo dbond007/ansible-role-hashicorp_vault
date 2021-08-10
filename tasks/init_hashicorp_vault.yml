@@ -7,7 +7,7 @@
 
 - name: set vault initialiation state
   set_fact:
-    vault_initialised: "{{ vault_status['json']['initialized'] }}"
+    vault_initialised: "{{ vault_status['json']['initialized'] | bool }}"
 
 - name: Check if vault is initialised
   debug:
@@ -25,7 +25,7 @@
           {
             "secret_shares": {{ vault_key_shares }},
             "secret_threshold": {{ vault_key_threshold }},
-          {% if vault_pgp_init %}
+          {% if vault_pgp_init and not vault_auto_unseal and not vault_rekey_after_unseal %}
             "pgp_keys": {{ vault_pgp_keys | to_json }},
             "root_token_pgp_key": {{ vault_pgp_root_key | to_json }}
           {% endif %}

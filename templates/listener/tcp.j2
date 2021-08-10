@@ -1,0 +1,31 @@
+# Start listener stanza 
+# External listener
+listener "tcp" {
+    address = "{{ vault_client_ip }}:{{ vault_client_port }}"
+    cluster_address = "{{ vault_server_ip }}:{{ vault_server_port }}"
+{% if not vault_tls_disabled %}
+    tls_cert_file = "{{ vault_tls_cert }}"
+    tls_key_file = "{{ vault_tls_key }}"
+    tls_min_version = "{{ vault_tls_version }}"
+{% else %}
+    tls_disable = "true"
+{% endif %}
+}
+
+# Local listener
+listener "tcp" {
+    address = "127.0.0.1:{{ vault_client_port }}"
+{% if not vault_tls_disabled %}
+    tls_cert_file = "{{ vault_tls_cert }}"
+    tls_key_file = "{{ vault_tls_key }}"
+    tls_min_version = "{{ vault_tls_version }}"
+{% else %}
+    tls_disable = "true"
+{% endif %}
+}
+
+# Advertise address
+api_addr  = "{{ vault_tls_disabled | ternary('http', 'https') }}://{{ vault_server_ip }}:{{ vault_client_port }}"
+cluster_addr = "{{ vault_tls_disabled | ternary('http', 'https') }}://{{ vault_server_ip }}:{{ vault_server_port }}"
+
+# End listener stanza

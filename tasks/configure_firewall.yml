@@ -1,0 +1,22 @@
+---
+
+- name: Ensure SSH enabled
+  ansible.posix.firewalld:
+    port: 22/tcp
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Ensure client firewall openings for vault
+  ansible.posix.firewalld:
+    port: "{{ vault_client_port }}/{{ vault_client_protocol }}"
+    permanent: yes
+    immediate: yes
+    state: enabled
+
+- name: Ensure server firewall openings for vault
+  ansible.posix.firewalld:
+    port: "{{ vault_server_port }}/{{ vault_server_protocol }}"
+    permanent: yes
+    immediate: yes
+    state: enabled

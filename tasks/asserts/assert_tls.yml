@@ -1,0 +1,6 @@
+---
+
+- name: Assert that tls version is available
+  ansible.builtin.assert:
+    that: vault_tls_version | lower in vault_valid_tls_version
+    fail_msg: "Invalid vault_tls_version: ({{ vault_tls_version }}) set, must be {{ vault_valid_tls_version }}"

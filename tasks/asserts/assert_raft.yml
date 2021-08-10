@@ -1,0 +1,28 @@
+---
+
+- name: Assert that data path is defined
+  ansible.builtin.assert:
+    that:
+      - vault_raft_path is defined
+    fail_msg: vault_raft_path is not defined
+
+- name: Assert that raft ID is defined
+  ansible.builtin.assert:
+    that:
+      - vault_raft_id is defined
+    fail_msg: vault_raft_id is not defined
+
+- name: Assert that performance multiplier is within range
+  ansible.builtin.assert:
+    that:
+      - vault_raft_performance_multiplier >= 0
+      - vault_raft_performance_multiplier <= 10
+    fail_msg: 'vault_raft_performance_multiplier not within range (0 - 10), value defined: {{ vault_raft_performance_multiplier }}'
+  when: vault_raft_performance_multiplier is defined
+
+- name: Assert that vault_raft_autopilot_reconcile_interval is in seconds (ends in s)
+  ansible.builtin.assert:
+    that:
+      - vault_raft_autopilot_reconcile_interval is match("^[0-9]*s$")
+    fail_msg: 'vault_raft_autopilot_reconcile_interval is not a valid value, it must be an value in seconds (int) followed by an s'
+  when: vault_raft_autopilot_reconcile_interval is defined

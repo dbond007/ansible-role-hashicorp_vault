@@ -1,0 +1,24 @@
+---
+
+- name: Assert that key options are valid
+  ansible.builtin.assert:
+    that:
+      - vault_key_shares >= 2
+      - vault_key_shares >= vault_key_threshold
+    fail_msg: "'vault_key_shares' ({{ vault_key_shares }}) must be between 2 and 'vault_key_threshold' ({{ vault_key_threshold }})"
+
+- name: Assert that the number of PGP keys matches that of the vault_key_shares
+  ansible.builtin.assert:
+    that:
+      - vault_key_shares == vault_pgp_keys | length
+    fail_msg: "'vault_key_shares' does not match the number of PGP keys to encrypt {{ vault_key_shares }} not equal to {{ vault_pgp_keys | length }}"
+  when: vault_pgp_init | bool
+
+- name: Assert that the PGP and auto unseal combination is valid
+  ansible.builtin.assert:
+    that:
+      - vault_rekey_after_unseal | bool
+    fail_msg: "vault can not be auto unsealed if PGP is enabled and not rekeying"
+  when:
+    - vault_auto_unseal | bool
+    - vault_pgp_init | bool

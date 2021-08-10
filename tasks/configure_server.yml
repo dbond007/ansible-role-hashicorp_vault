@@ -1,0 +1,25 @@
+---
+ # Secure the server
+
+- name: Ensure swap is disabled now
+  command: swapoff -a
+  changed_when: false
+
+- name: Ensure swap is disabled after reboot
+  ansible.builtin.replace:
+    path: /etc/fstab
+    regexp: '^(\s*)([^#\n]+\s+)(\w+\s+)swap(\s+.*)$'
+    replace: '#\1\2\3swap\4'
+    backup: yes
+
+- name: Ensure core dumps are disabled
+  ansible.builtin.lineinfile:
+    path: /etc/systemd/coredump.conf
+    line: Storage=none
+    create: yes
+
+- name: Ensure bash history is disabled
+  ansible.builtin.lineinfile:
+    path: /etc/profile.d/disable.history.sh
+    line: set +o history
+    create: yes

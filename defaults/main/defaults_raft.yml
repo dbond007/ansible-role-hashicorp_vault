@@ -1,0 +1,16 @@
+---
+# Values are set to recommended for production workloads or defaults if not needed to be changed as per
+# https://www.vaultproject.io/docs/configuration/storage/raft
+
+vault_raft_auto_join_enabled: false
+vault_raft_path: /opt/vault.d
+vault_raft_id: "{{ ansible_hostname }}"
+
+vault_raft_performance_multiplier: 1
+vault_raft_trailing_logs: 10000
+vault_raft_snapshot_threshold: 8192
+vault_raft_max_entry_size: 1048576
+vault_raft_autopilot_reconcile_interval: 10s
+vault_raft_auto_join:
+vault_raft_auto_join_scheme:
+vault_raft_auto_join_port:

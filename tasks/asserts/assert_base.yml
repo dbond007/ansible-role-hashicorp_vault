@@ -1,0 +1,17 @@
+---
+
+- name: Assert that storage option is available
+  ansible.builtin.assert:
+    that: vault_storage | lower in vault_valid_storage
+    fail_msg: "Invalid vault_storage: ({{ vault_storage }}) set, must be {{ vault_valid_storage }}"
+
+- name: Assert that the listener option is available
+  ansible.builtin.assert:
+    that: vault_server_protocol | lower in vault_valid_listener
+    fail_msg: "Invalid vault_listener: ({{ vault_server_protocol }}) set, must be {{ vault_valid_listener }}"
+
+- name: Assert that server group is defined
+  ansible.builtin.assert:
+    that:
+      - vault_server_role_group is defined
+    fail_msg: vault_server_role_group is not defined

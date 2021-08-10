@@ -1,0 +1,15 @@
+---
+
+# Validation lists
+# Vault URL details
+# Valid return codes:
+# 200 if initialized, unsealed, and active
+# 429 if unsealed and standby
+# 472 if disaster recovery mode replication secondary and active
+# 473 if performance standby
+# 501 if not initialized
+# 503 if sealed
+vault_valid_return_codes: [200, 429, 472, 473, 501, 503]
+vault_valid_storage: ["raft"]
+vault_valid_listener: ["tcp"]
+vault_valid_tls_version: ["tls10","tls11","tls12","tls13"]

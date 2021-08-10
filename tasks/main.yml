@@ -1,21 +1,55 @@
 ---
 # tasks file for ansible-role-hashicorp_vault
 
-###### Same for all, so should split out #########
-- set_fact:
-    vault_address: "http://{{ vault_uri_addr }}:{{ vault_client_port }}"
-  when: vault_tls_disabled
+- name: Set vault connection
+  set_fact:
+    vault_address: "{{ vault_tls_disabled | ternary('http', 'https') }}://{{ vault_uri_addr }}:{{ vault_client_port }}"
 
-- set_fact:
-    vault_address: "https://{{ vault_uri_addr }}:{{ vault_client_port }}"
-  when: not vault_tls_disabled
+- name: Assert that configured options are correct
+  include: asserts/assert_config.yml
+  when: vault_validate_config | bool
 
-- name: Ensure Hashicorp Vault is installed
+- name: Ensure the server is secured to best practices from hashicorp for vault
+  include: configure_server.yml
+  when: vault_configure_server | bool
+
+- name: Ensure the firewall is opened for the needed port
+  include: configure_firewall.yml
+  when: vault_configure_firewall | bool
+
+- name: reset
+  include: reset_hashicorp_vault.yml
+  when: vault_reset | bool
+
+- name: Ensure Hashicorp Vault is installed via download
   include: install_hashicorp_vault_download.yml
+  when:
+    - vault_auto_install | bool
+    - not vault_auto_install_repo | bool
+
+- name: Ensure Hashicorp Vault is installed via repo
+  include: install_hashicorp_vault_download.yml
+  when:
+    - vault_auto_install | bool
+    - vault_auto_install_repo | bool
 
 - name: Ensure the server is configured correctly
   include: configure_hashicorp_vault.yml
+  when: vault_configure_install | bool
 
 - name: Initialise vault
   include: init_hashicorp_vault.yml
+  when: vault_auto_init | bool
 
+- name: Unseal vault
+  include: unseal_hashicorp_vault.yml
+  when: vault_auto_unseal | bool
+
+- name: Rekey vault after auto init and auto unseal
+  include: rekey_hashicorp_vault.yml
+  when:
+    - vault_auto_init | bool
+    - vault_auto_unseal | bool
+    - vault_rekey_after_unseal | bool
+    - vault_init_results is defined
+    - vault_unseal_results is defined

@@ -1,0 +1,12 @@
+---
+
+- name: Ensure TLS directory is present
+  file:
+    dest: "{{ vault_tls_path }}"
+    state: directory
+    owner: "{{ vault_user }}"
+    group: "{{ vault_group }}"
+    mode: 0550
+
+- name: Ensure TLS certificates are present
+  
