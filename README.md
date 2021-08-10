@@ -1,6 +1,10 @@
 # ansible-role-hashicorp_vault
 
 This role will install Hashicorp Vault via download, it will configure it using raft as a backend, allow enabling tls and initialising with plain text keys or pgp.
+It will also allow unsealing of the vault nodes. If pgp is enabled and rekey enabled, it will initially initialise the vault without PGP, unseal and then rekey creating the PGP encrypted keys.
+If rekey is not enabled but PGP is and unseal is, assert will fire saying incompatible combination, as its not possible to unseal when only PGP is enabled and no rekeying (as the unseal keys are not available).
+
+TLS certifictes are currently not implemented, that will be added soon.
 
 It will download the version specified and install it, if a version is currently installed it will check if it is different to the one requested, if so, will upgrade / downgrade it.
 If vault_auto_restart: true is set, it will automatically restart the vault server (requiring and unseal)
